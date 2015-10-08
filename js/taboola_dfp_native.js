@@ -9,8 +9,8 @@
         // Append the rendered Dfp slot to specified element.
         appendDfp: function (tags) {
           $.each(tags, function (index, item) {
-            position = item.position != undefined && item.position > 0 ? item.position - 1 : 0;
-            $(item.selector).eq(position).append(item.displayHtml);
+            position = item.position != undefined && item.position > 0 ? item.position : 0;
+            $(item.selector).eq(position).before(item.displayHtml);
           });
 
         },

@@ -36,10 +36,14 @@ function taboola_dfp_native_context_plugins() {
 
 
 /**
- * Impelements hook_page_build
+ * Implements hook_page_build().
  *
- * Appended the rendered dfp tag in specified location.
+ * Get all needed settings and add it to the JavaScript which will appended
+ * the rendered dfp tag in specified location.
  * All the visibility rules should be controlled by the context.
+ *
+ * @note: *We don't need multiple DFP support per page, so we'll break after
+ *    the first found.
  */
 function taboola_dfp_native_page_build(&$page) {
   $taboola_dfp_native_tags = array();
@@ -49,23 +53,24 @@ function taboola_dfp_native_page_build(&$page) {
     $plugin->execute();
 
     if (!empty($plugin->taboola_dfp_native_tags)) {
-
       foreach ($plugin->taboola_dfp_native_tags as $machinename => $values) {
-        if (!empty($values)) {
-          // Load the DFP tag.
-          $tag = dfp_tag_load($values['ad_tag']);
+        // Just one value is not required (position). So, check for values.
+        if (count(array_filter($values)) < count($values) - 1) {
+          continue;
+        }
 
-          if (empty($tag->disabled)) {
-            $dfp_tag = dfp_tag($values['ad_tag']);
-            $taboola_dfp_native_tags[$machinename] = $values;
-            $taboola_dfp_native_tags[$machinename]['targeting'] = $tag->targeting;
-            // Render the tag.
-            $taboola_dfp_native_tags[$machinename]['displayHtml'] = render($dfp_tag);
+        // Load the DFP tag.
+        $tag = dfp_tag_load($values['ad_tag']);
 
-            // Break after the first found one.
-            // As we don't need now to support multiple dfp on the same page. Or we do!?  I'll do.
-            break;
-          }
+        if (empty($tag->disabled) && !empty($tag->targeting)) {
+          $dfp_tag = dfp_tag($values['ad_tag']);
+          $taboola_dfp_native_tags[$machinename] = $values;
+          $taboola_dfp_native_tags[$machinename]['targeting'] = $tag->targeting;
+          // Render the tag.
+          $taboola_dfp_native_tags[$machinename]['renderedDfp'] = render($dfp_tag);
+
+          // *Break after the first found one.
+          break;
         }
       }
     }
@@ -76,7 +81,7 @@ function taboola_dfp_native_page_build(&$page) {
 }
 
 /**
- * Helper add the javascript code for Taboola DFP Native.
+ * Helper to add the javascript code for Taboola DFP Native.
  */
 function _taboola_dfp_native_add_js($tags) {
 

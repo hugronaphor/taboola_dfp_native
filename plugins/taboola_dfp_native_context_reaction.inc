@@ -18,7 +18,7 @@ class TaboolaDFPNativeContextReaction extends context_reaction {
       $values = $settings['values'];
     }
 
-    // Get a list of all DART tags.
+    // Get a list of all the tags.
     $options = array();
     $tags = dfp_tag_load_all();
     if (empty($tags)) {
@@ -52,7 +52,7 @@ class TaboolaDFPNativeContextReaction extends context_reaction {
     );
     $form['values']['position'] = array(
       '#title' => t('Position'),
-      '#description' => t('This determines the position within the selector where you wish to place the ad unit. If you want an ad to appear after the third child add 3.'),
+      '#description' => t('This determines the position within the selector where you wish to place the ad unit. If you want an ad to appear after the third child add 3 or leave i empty if you want it to be the first element.'),
       '#type' => 'textfield',
       '#size' => 10,
       '#default_value' => isset($values['position']) ? $values['position'] : '',
